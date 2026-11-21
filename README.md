@@ -66,9 +66,8 @@ The rain-sensor fault affects **AUTO mode only**. Manual LOW and HIGH settings r
 
 Rain intensity is limited to the range 0–100. In AUTO mode, the target duty cycle is calculated as:
 
-$$
-D_{\text{target}} = 0.007\,\operatorname{clip}(R,0,100)
-$$
+D_"target"  [k]=0.007" " R_"limited"  [k]
+R_"limited"  [k]=min(100"," max(0"," R[k]))
 
 where `R` is the rain-intensity input and `D_target` is the target duty-cycle fraction. This maps no rain to 0% and maximum modeled rainfall to 70%.
 
@@ -76,9 +75,7 @@ where `R` is the rain-intensity input and `D_target` is the target duty-cycle fr
 
 A discrete feedback loop limits how much the automatic duty cycle can change in one simulation step:
 
-$$
-D[k] = D[k-1] + \operatorname{clip}\!\left(D_{\text{target}}[k]-D[k-1],-0.0002,+0.0002\right)
-$$
+D[k]=D[k-1]+clip" "(D_"target"  [k]-D[k-1]","-0.0002","+0.0002)
 
 The sample time is **0.001 s**, so the maximum duty-cycle change is **20 percentage points per second**. When AUTO is disabled or a sensor fault occurs, the automatic duty-cycle command and its stored previous value are reset to zero. This allows a smooth restart after the fault clears.
 
@@ -121,46 +118,3 @@ The 10 Hz frequency is selected for simulation and visualization; it is **not a 
 | 14–18 s | HIGH | Any rain/sensor status | Fixed 70% |
 | 18–20 s | OFF | — | 0% duty cycle |
 
-The stated AUTO percentages are **target values**. The actual output approaches them over time because of the transition-rate limit.
-
-## How to Run
-
-**Requirements:** MATLAB and Simulink.
-
-### Open the existing model
-
-1. Download or clone the repository.
-2. Open the `.slx` model file in MATLAB/Simulink.
-3. Run the simulation for 20 seconds.
-4. Inspect the PWM, wiper-active, and duty-cycle Scope signals.
-
-### Alternatively, generate the model from the MATLAB script
-
-If the repository includes `WiperSystem_DualMode_Build.m`, run this command from the folder containing the script:
-
-```matlab
-run('WiperSystem_DualMode_Build.m');
-```
-
-The build script creates `WiperSystem_DualMode.slx`, configures the simulation, and runs the test scenario. Run it in a folder that does not already contain a model with that name, because the script intentionally avoids overwriting an existing model.
-
-## Verification Checklist
-
-- OFF produces no PWM pulses and clears the active indication.
-- AUTO follows changes in rain intensity without an abrupt duty-cycle jump.
-- A sensor fault forces AUTO PWM to zero.
-- Clearing the fault permits AUTO to restart gradually.
-- LOW generates a 40% duty cycle.
-- HIGH generates a 70% duty cycle.
-- The active indication reflects the commanded nonzero duty cycle rather than individual PWM pulses.
-
-## Design Scope
-
-This is a **control-logic simulation**. The rain sensor is modeled using test signals rather than physical sensing hardware. A production vehicle implementation would require appropriate motor-driving electronics, validated PWM frequency, electrical protection, motor feedback, mechanical end-stop/park control, and hardware testing.
-
-## Possible Extensions
-
-- Intermittent wiping with an adjustable delay.
-- Improved rain-sensor filtering and sensitivity settings.
-- Motor position feedback and automatic park functionality.
-- Hardware-oriented PWM and fault-diagnostic features.
