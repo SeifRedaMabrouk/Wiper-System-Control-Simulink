@@ -66,8 +66,8 @@ The rain-sensor fault affects **AUTO mode only**. Manual LOW and HIGH settings r
 
 Rain intensity is limited to the range 0–100. In AUTO mode, the target duty cycle is calculated as:
 
-D_"target"  [k]=0.007" " R_"limited"  [k]
-R_"limited"  [k]=min(100"," max(0"," R[k]))
+D_target[k]=0.007R_limited[k]    
+R_limited[k]=min(100, max(0, R[k]))
 
 where `R` is the rain-intensity input and `D_target` is the target duty-cycle fraction. This maps no rain to 0% and maximum modeled rainfall to 70%.
 
@@ -75,7 +75,7 @@ where `R` is the rain-intensity input and `D_target` is the target duty-cycle fr
 
 A discrete feedback loop limits how much the automatic duty cycle can change in one simulation step:
 
-D[k]=D[k-1]+clip" "(D_"target"  [k]-D[k-1]","-0.0002","+0.0002)
+D[k]=D[k-1]+clip(D_target[k]-D[k-1], -0.0002, +0.0002)
 
 The sample time is **0.001 s**, so the maximum duty-cycle change is **20 percentage points per second**. When AUTO is disabled or a sensor fault occurs, the automatic duty-cycle command and its stored previous value are reset to zero. This allows a smooth restart after the fault clears.
 
